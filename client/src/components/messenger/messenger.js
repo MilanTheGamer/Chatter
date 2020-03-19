@@ -4,7 +4,9 @@ import classNames from "classnames";
 import avatar from "../images/avatar.png";
 import {OrderedMap} from "immutable";
 import _ from "lodash";
-import {ObjectId} from "../../helpers/objectId";
+import {ObjectId} from "../../helpers/objectId"; 
+import settingsButton from "../../icons/settings.svg";
+import createButton from "../../icons/create.svg"
 
 class Messenger extends Component {
   constructor(props){
@@ -17,30 +19,38 @@ class Messenger extends Component {
     this.addTestmessage = this.addTestmessage.bind(this);
     this.handleSend = this.handleSend.bind(this);
     this.renderMessage = this.renderMessage.bind(this);
+    this.scrollMessageToBottom = this.scrollMessageToBottom.bind(this);
   }
 
   renderMessage(message){
-    return <p dangerouslySetInnerHTML={{__html:_.get(message,"message")}}></p>
+
+    const text = _.get(message,"body","");
+    const html = _.split(text,"\n").map((msg,key)=>{
+      return <p key={key} dangerouslySetInnerHTML={{__html:msg}}></p>
+    })
+    return html;
   }
 
   handleSend(){
     const {newMessage} = this.state;
     const {store} = this.props;
-    const messageId = new ObjectId().toString();
-    const channel = store.getActiveChannel();
-    const channelId = _.get(channel,"_id",null);
-    const currentUser = store.getCurrentUser();
-    const message = {
-      _id:messageId,
-      channelId:channelId,
-      message:newMessage,
-      author:_.get(currentUser,"name"),
-      avatar:avatar,
-      me:true,
+
+    if(_.trim(newMessage).length){
+      const messageId = new ObjectId().toString();
+      const channel = store.getActiveChannel();
+      const channelId = _.get(channel,"_id",null);
+      const currentUser = store.getCurrentUser();
+      const message = {
+        _id:messageId,
+        channelId:channelId,
+        body:newMessage,
+        author:_.get(currentUser,"name"),
+        avatar:avatar,
+        me:true,
+      }
+      store.addMessage(messageId,message)
+      this.setState({newMessage:""})
     }
-    console.log(message);
-    store.addMessage(messageId,message)
-    this.setState({newMessage:""})
   }
 
   _onResize(){
@@ -61,7 +71,7 @@ class Messenger extends Component {
       const newMsg = {
         _id:`${i}`,
         author:`Author: ${i}`,
-        message:`Message :${i}`,
+        body:`Message :${i}`,
         avatar:avatar,
         me: isMe,
       }
@@ -89,17 +99,28 @@ class Messenger extends Component {
 
   }
 
+  scrollMessageToBottom(){
+    if(this.messageRef){
+      this.messageRef.scrollTop = this.messageRef.scrollHeight;
+    }
+  }
+
   componentDidMount(){
     window.addEventListener("resize",this._onResize)
     this.addTestmessage()
   }
 
-  componentWillUnmount(){
+  componentDidUpdate(){
+    console.log("Component did update");
+    this.scrollMessageToBottom()
+  }
 
+  componentWillUnmount(){
+    window.removeEventListener("resize",this._onResize)
   }
 
   render(){
-
+    
     const {store} = this.props;
     const {height} = this.state
     const style={
@@ -117,9 +138,9 @@ class Messenger extends Component {
 {/* ----------------------HEADER-------------------------------------------------------------------------------------------------------------------------------- */}
             <div className="header">
                 <div className="left">
-                  <div className="actions">
-                    <button>New Message</button>
-                  </div>
+                    <button className="left-action"><img className="icons" src={settingsButton}></img></button>
+                    <button className="right-action"><img className="icons" src={createButton}></img></button>
+                    <h2>Messenger</h2>
                 </div>
                 <div className="content">
                   <h2>{_.get(activeChannel,"title")}</h2>
@@ -159,10 +180,8 @@ class Messenger extends Component {
 
                   </div>
                 </div>
-
                 <div className="content">
-                  <div className="messages">
-
+                  <div ref={(ref) => this.messageRef = ref} className="messages">
                     {messages.map((message) => {
                       return (
                         <div key={message._id} className={classNames("message",{"me": message.me})}>
@@ -176,8 +195,6 @@ class Messenger extends Component {
                         </div>
                       ) 
                     })}
-
-
                   </div>
                   <div className="messenger-input">
                     <div className="text-input">

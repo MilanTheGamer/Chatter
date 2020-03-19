@@ -11,10 +11,35 @@
         border-bottom: 1px solid $border-color;
         .left{
             width: $left-sidebar-width;
-            .actions{
-                line-height: $header-height;
-                padding: 0 10px;
+            position: relative;
+            .left-action{
+                position: absolute;
+                left: 8px;
+                top:5px;
             }
+            .right-action{
+                position: absolute;
+                right: 8px;
+                top:5px;
+            }
+            h2{
+                line-height: $header-height;
+                font-size: 14px;
+                font-weight: 600;
+                display: block;
+                text-align: center;
+            }
+            img{
+                width: 23px;
+                height: 25px;
+            }
+            button{
+                background: transparent;
+                border: none;
+                line-height: $header-height;
+                cursor: pointer;
+            }
+
         }
 
         .content{
