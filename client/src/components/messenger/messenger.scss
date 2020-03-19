@@ -64,6 +64,7 @@
             flex-direction: column;
             .messages{
                 flex-grow: 1;
+                height:100vh;
             }
             .messenger-input{
                 border-top:1px solid $border-color;
@@ -147,6 +148,7 @@
     display: flex;
     flex-direction: column;
     .channel{
+        cursor: pointer;
         padding: 10px 0;
         display: flex;
         flex-direction: row;
@@ -169,6 +171,9 @@
             p{
                 font-size: 12px;
             }
+        }
+        &.active{
+            background: rgba(0,0,0,0.05);
         }
     }
 }

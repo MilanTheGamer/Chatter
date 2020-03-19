@@ -1,12 +1,24 @@
 import React,{Component} from 'react';
 import Messenger from "../messenger/messenger";
 import "./app.scss";
+import Store from "../../store";
 
 class App extends Component {
+
+  constructor(props){
+    super(props);
+    this.state = {
+      store:new Store(this),
+    }
+  }
+
   render(){
+
+    const {store} = this.state;
+
     return(
       <div className="app-wrapper">
-          <Messenger />
+          <Messenger store={store}/>
       </div>
     )
   };
