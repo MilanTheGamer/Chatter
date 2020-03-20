@@ -255,6 +255,17 @@
     display: flex;
     flex-direction: row;
     position: relative;
+    span{
+        line-height: 20px;
+        height: 30px;
+        margin: 10px 5px 0 0;
+        padding:5px 8px;
+        background: $primary-color;
+        color: #FFF;
+        display: block;
+        border-radius: 3px;
+        cursor: pointer;
+    }
     label{
         line-height: $header-height;
     }

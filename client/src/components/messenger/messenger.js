@@ -33,16 +33,21 @@ class Messenger extends Component {
     const {store} = this.props;
     const channelId = new ObjectId().toString();
 
+    const currentUser = store.getCurrentUser();
+    const currentUserId = _.get(currentUser,"_id");
+
     const channel = {
       _id:channelId,
-      title:"NEW",
+      title:"",
       lastMessage:"",
       members:new OrderedMap(),
       messages:new OrderedMap(),
       created:new Date(),
+      userId:currentUserId,
       isNew:true,
     }
 
+     channel.members = channel.members.set(currentUserId,true);
     store.onCreateNewChannel(channel);
     
   }
@@ -53,10 +58,17 @@ class Messenger extends Component {
     const names = [];
 
     members.forEach(user => {
+      const name = _.get(user,"name");
       names.push(_.get(user,"name"));
     })
 
-    return <h2>{_.join(names,",")}</h2>
+    let title = _.join(names,",");
+    if(!title && _.get(channel,"isNew")){
+      title = "New Message";
+    };
+
+
+    return <h2>{title}</h2>
   }
 
   renderMessage(message){
@@ -81,8 +93,7 @@ class Messenger extends Component {
         _id:messageId,
         channelId:channelId,
         body:newMessage,
-        author:_.get(currentUser,"name"),
-        avatar:avatar,
+        userId:_.get(currentUser,"_id"),
         me:true,
       }
       store.addMessage(messageId,message)
@@ -142,6 +153,18 @@ class Messenger extends Component {
                   
                     <div className="toolbar">
                       <label>To:</label>
+                      {
+                        members.map(user => {
+                          return (
+                            <span onClick={()=>{
+                              store.removeMemberFromChannel(activeChannel,user);
+                            }} 
+                            key={_.get(user,"_id")}>
+                              {_.get(user,"name")}
+                            </span>
+                          )
+                        })
+                      }
                       <input type="text" placeholder=" Type name of person"
                         onChange={(e)=>
                           {this.setState({
@@ -219,11 +242,12 @@ class Messenger extends Component {
                 <div className="content">
                   <div ref={(ref) => this.messageRef = ref} className="messages">
                     {messages.map((message) => {
+                      const user = _.get(message,"user")
                       return (
                         <div key={message._id} className={classNames("message",{"me": message.me})}>
-                          <div className="message-user-image"><img src={message.avatar} alt="message-sender-image"></img></div>
+                          <div className="message-user-image"><img src={user.avatar} alt="message-sender-image"></img></div>
                           <div className="message-body">
-                              <div className="message-author">{message.me ? "You" : message.author}</div>
+                              <div className="message-author">{message.me ? "You" : user.name}</div>
                               <div className="message-text">
                                 {this.renderMessage(message)}
                               </div>
@@ -233,7 +257,7 @@ class Messenger extends Component {
                     })}
                   </div>
 
-                  {activeChannel ? 
+                  {activeChannel && members.size > 0 ? 
                   
                   <div className="messenger-input">
                     <div className="text-input">

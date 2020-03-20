@@ -19,6 +19,7 @@ export default class Store{
         this.user = {
             _id:"1",
             name:"Milan",
+            avatar:"https://api.adorable.io/avatars/100/abott@milan.png",
             created:new Date(),
         }
     }
@@ -33,20 +34,32 @@ export default class Store{
         };
     };
 
+    removeMemberFromChannel(channel=null,user=null){
+
+        if(!channel || !user){
+            return;
+        };
+
+        const userId = _.get(user,"_id");
+        const channelId = _.get(channel,"_id");
+        channel.members = channel.members.remove(userId);
+        
+        this.channels = this.channels.set(channelId,channel);
+        this.update();
+    };
+
     searchUsers(search=""){
         let searchItems = new OrderedMap();
-
+        
+        const keyword = _.toLower(search);
+        const currentUser = this.getCurrentUser();
+        const currentUserId = _.get(currentUser,"_id");
         if(_.trim(search).length){
-            users.filter(user => {
-                const name = _.get(user, "name");
-                const userId = _.get(user, "_id");
-                if(_.includes(name.toLowerCase(),search.toLowerCase())){
-                    searchItems = searchItems.set(userId,user);
-                };
-            })
+            searchItems = users.filter((user) => _.get(user,"_id") !== currentUserId && _.includes(_.toLower(_.get(user,"name")),keyword));
         };
+
         return searchItems.valueSeq();
-    }
+    };
 
     onCreateNewChannel(channel={}){
 
@@ -102,7 +115,10 @@ export default class Store{
     };
 
     addMessage(id,message={}){
-        this.messages = this.messages.set(`${id}`,message);
+        this.messages = this.messages.set(id,message);
+        const user = this.getCurrentUser();
+        message.user = user;
+
         // Add new messageId to current channel.
         const channelId = _.get(message,"channelId");
         if(channelId){
