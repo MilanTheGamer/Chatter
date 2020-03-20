@@ -1,0 +1,44 @@
+@import "../variables";
+
+.search-user{
+    position: absolute;
+    top:$header-height;
+    left: 0px;
+    z-index: 1;
+    border:1px solid $border-color;
+    border-top:0;
+    min-width: 180px;
+    .user-list{
+        display: flex;
+        flex-direction: column;
+        .user{
+            display: flex;
+            flex-direction: row;
+            padding: 5px;
+            border-bottom: 1px solid $border-color;
+            cursor: pointer;
+            img{
+                line-height: 100%;
+                align-self: center;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+            }
+            h2{ 
+                line-height: 100%;
+                align-self: center;
+                padding-left: 8px;
+                flex-grow: 1;
+                text-align: start;
+                font-size: 14px;
+                font-weight: 600;
+            }
+            &:last-child{
+                border-bottom: 0;
+            }
+            &:hover{
+                background: $active-color;
+            }
+        }
+    }
+}
