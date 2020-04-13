@@ -1,0 +1,56 @@
+@import "../variables";
+
+.user-form{
+    position: absolute;
+    top: $header-height;
+    right: 0px;
+    border: 1px solid $border-color;
+    border-top: 0 none;
+    padding: 10px;
+
+    .form-item{
+        display: flex;
+        margin-top: 10px;
+        label{
+            line-height: 30px;
+            min-width: 80px;
+            text-align: right;
+            margin-right: 8px;
+            font-weight: 600;
+        }
+        input{
+            border:1px solid $border-color;
+            padding: 3px 8px;
+            height:30px;
+            line-height: 30px;
+        }
+    }
+    .form-action{
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        margin-top: 10px;
+        button{
+            border: 0 none;
+            padding: 7px 15px;
+            text-align: center;
+            &.primary{
+                background: $primary-color;
+                color: #fff;
+            }
+        }
+    }
+}
+
+.app-message{
+    font-size: 12px;
+    text-align: center;
+    border: 1px solid $primary-color;
+    border-radius: 5px;
+    margin: 10px 5px;
+    &.error{
+        background: $danger-color;
+        color: #fff;
+        border-color: $danger-color;    
+    }
+}

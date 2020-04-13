@@ -10,6 +10,7 @@ import createButton from "../../icons/create.svg";
 import moment from "moment";
 
 import SearchUser from "../searchUser/searchUser";
+import UserBar from "../userBar/userBar";
 
 class Messenger extends Component {
   constructor(props){
@@ -202,10 +203,7 @@ class Messenger extends Component {
                 </div>
 
                 <div className="right">
-                  <div className="user-bar">
-                    <div className="profile-name">Milan</div>
-                    <div className="profile-image"><img src={avatar} alt="Profile Pic"></img></div>
-                  </div>
+                  <UserBar store={store} />
                 </div>
             </div>
 

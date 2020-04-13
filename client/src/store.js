@@ -2,9 +2,9 @@ import {OrderedMap} from "immutable";
 import _ from "lodash";
 
 const users = new OrderedMap({
-    "1":{_id:"1", name:"Milan", created: new Date(), avatar:"https://api.adorable.io/avatars/100/abott@milan.png"},
-    "2":{_id:"2", name:"Jack", created: new Date(), avatar:"https://api.adorable.io/avatars/100/abott@jack.png"},
-    "3":{_id:"3", name:"Kevin", created: new Date(), avatar:"https://api.adorable.io/avatars/100/abott@kevin.png"},
+    "1":{_id:"1", email:"milan@gmail.com", name:"Milan", created: new Date(), avatar:"https://api.adorable.io/avatars/100/abott@milan.png"},
+    "2":{_id:"2", email:"jack@gmail.com", name:"Jack", created: new Date(), avatar:"https://api.adorable.io/avatars/100/abott@jack.png"},
+    "3":{_id:"3", email:"kevin@gmail.com", name:"Kevin", created: new Date(), avatar:"https://api.adorable.io/avatars/100/abott@kevin.png"},
 })
 
 export default class Store{
@@ -15,13 +15,48 @@ export default class Store{
         this.activeChannelId = null;
 
 
-        // Current User
-        this.user = {
-            _id:"1",
-            name:"Milan",
-            avatar:"https://api.adorable.io/avatars/100/abott@milan.png",
-            created:new Date(),
+        this.user = this.getUserFromLocalStorage();
+
+    }
+
+    getUserFromLocalStorage(){
+        let user = null;
+        const data = localStorage.getItem("me");
+        try{
+            user = JSON.parse(data)
+        }catch(error){
+            console.log(error)
+        };
+        return user;
+    }
+
+    setCurrentUser(user){
+        this.user = user;
+        if(user){
+            localStorage.setItem("me",JSON.stringify(user));
         }
+        this.update();
+    }
+
+    login(email,password){
+
+        const userEmail = _.toLower(email);
+        
+        return new Promise((resolve,reject)=>{
+            const user = users.find(user => user.email === userEmail);
+            if(user){
+                this.setCurrentUser(user)
+            }
+            
+            return user ? resolve(user) : reject("User not found")
+        })
+
+    }
+
+    signOut(){
+        this.user = null;
+        localStorage.removeItem("me");
+        this.update()
     }
 
     addUserToChannel(channelId,userId){
@@ -86,15 +121,15 @@ export default class Store{
     }
 
     getMessagesFromChannel(channel){
-        let messages = [];
+        let messages = new OrderedMap();
 
         if(channel){
-            channel.messages.map((value,key)=>{
+            channel.messages.forEach((value,key)=>{
                 const message = this.messages.get(key);
-                messages.push(message)
-            });
+                messages = messages.set(key,message);
+            })
         }
-        return messages;
+        return messages.valueSeq();
         
     }
 
@@ -102,7 +137,7 @@ export default class Store{
         let members = new OrderedMap();
 
         if(channel){
-            channel.members.map((value,key)=>{
+            channel.members.forEach((value,key)=>{
                 const member = users.get(key);
                 const loggedUser = this.getCurrentUser();
                 if (_.get(loggedUser,"_id") !== _.get(member,"_id")){
